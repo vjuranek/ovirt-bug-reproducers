@@ -35,6 +35,12 @@ Test scenario:
   * repeate this in cycle until merge failure happens
 """
 
+# Name of the VM for which snapshots will be taken.
+VM_NAME = "test-cirros"
+
+# Number of runs of create/merge snapshots.
+NUM_RUNS = 101
+
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 log = logging.getLogger("snapshots")
 
@@ -81,22 +87,23 @@ with contextlib.closing(connection):
     # Locate the virtual machines service and use it to find the virtual
     # machine.
     vms_service = connection.system_service().vms_service()
-    vm = vms_service.list(search='name=test-cirros')[0]
+    vm = vms_service.list(search="name={}".format(VM_NAME))[0]
 
     # Locate the service that manages the snapshots of the virtual
     # machine.
     snapshots_service = vms_service.vm_service(vm.id).snapshots_service()
 
     # Create the initial snapshot.
-    log.info("Creating intial snapshot")
-    prev_snap = create_snapshot(snapshots_service, "init-snapshot")
+    log.info("Creating new snapshot-%i", 0)
+    prev_snap = create_snapshot(
+            snapshots_service, "snapshot-{}".format(0))
     prev_snap_name = prev_snap.description
     prev_snap_service = snapshots_service.snapshot_service(prev_snap.id)
 
     wait_for_snapshot(prev_snap_service)
 
     # Run in the loop creating new snapshot and deleting the old one.
-    for i in range(100):
+    for i in range(1, NUM_RUNS):
         log.info("Creating new snapshot-%i", i)
         curr_snap = create_snapshot(
             snapshots_service, "snapshot-{}".format(i))
