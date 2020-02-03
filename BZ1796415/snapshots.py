@@ -117,3 +117,8 @@ with contextlib.closing(connection):
 
         prev_snap_service = curr_snap_service
         prev_snap_name = curr_snap.description
+
+    # Remove last snapshot.
+    log.info("Removing snapshot %s", prev_snap_name)
+    prev_snap_service.remove()
+    wait_for_removal(prev_snap_service)
