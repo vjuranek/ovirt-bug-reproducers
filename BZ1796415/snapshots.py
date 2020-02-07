@@ -30,9 +30,15 @@ Reproducer for https://bugzilla.redhat.com/1796415
 Issue: live merge sometimes fails, unable to merge a snapshot.
 
 Test scenario:
+  * create VM and *thin* disk attached to this VM
   * create two snapshots
   * remove/merge the older one
   * repeate this in cycle until merge failure happens
+
+Incresing IO load in the disk probably increases the probability to hit
+the bug. It can be done e.g. by running something like this in the VM:
+
+  while true; do dd if=/dev/urandom of=/mnt/test/random bs=1M count=100; done
 """
 
 # Name of the VM for which snapshots will be taken.
